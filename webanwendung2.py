@@ -177,7 +177,7 @@ abweichung_links = [0,0,0]
 abweichung_rechts = [0,0,0]
 
 proz_abweichung_links = [0,0,0]
-
+proz_abweichung_rechts = [0,0,0]
     
 ###### MA 3 #######################################
 
@@ -463,6 +463,10 @@ def update_output2(selected_graph, periods, list_of_contents, list_of_names):
                 mae = mean_absolute_error(y[-1:], smoothed_values[-2:-1])
                 mae = mae.round(2)
                 mae_links[1] = mae
+
+                proz_abweichung = (abs(smoothed_values[-2:-1][0] - y[-1:][0]) / y[-1:][0]) * 100
+                proz_abweichung =  proz_abweichung.round(2)
+                proz_abweichung_links[1] = proz_abweichung
                 
                 if nextPrediction < 0:
                     df.iloc[:, 1][df.index[-1]] = 0.0
@@ -603,6 +607,12 @@ def update_output2(selected_graph, periods, list_of_contents, list_of_names):
                 mae = mean_absolute_error(y[-1:], moving_avg[-3:-2])
                 mae = mae.round(2)
                 mae_links[2] = mae
+                
+                proz_abweichung = (abs(moving_avg[-3:-2][0] - y[-1:][0]) / y[-1:][0]) * 100
+                proz_abweichung =  proz_abweichung.round(2)
+                proz_abweichung_links[2] = proz_abweichung
+
+
                 
                 if nextPrediction < 0:
                     df.iloc[:, 1][df.index[-1]] = 0.0
@@ -829,6 +839,8 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 mae = mean_absolute_error(y_test, y_predict)
                 mae = mae.round(2)
                 mae_rechts[0] = mae
+
+
                 
                 nextPrediction = model.predict([[(last_index + 1)]]).round(2)
                 print('Prediction')
@@ -874,6 +886,11 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 abweichung = mean_absolute_error(y[-1:], verkürztePrognose)
                 abweichung = abweichung.round(2)
                 abweichung_rechts[0] = abweichung
+
+
+                proz_abweichung = (abs(verkürztePrognose[0][0] - y.iloc[-1][0]) / y.iloc[-1][0]) * 100
+                proz_abweichung =  proz_abweichung.round(2)
+                proz_abweichung_rechts[0] = proz_abweichung
       
                 
                 ######
@@ -1155,6 +1172,11 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 abweichung = abweichung.round(2)
                 abweichung_rechts[1] = abweichung
 
+                
+                proz_abweichung = (abs([nextPrediction2][0] - test.iloc[-1][0]) / test.iloc[-1][0]) * 100
+                proz_abweichung =  proz_abweichung.round(2)
+                proz_abweichung_rechts[1] = proz_abweichung
+
                 #########
 
                 if nextPrediction < 0:
@@ -1421,6 +1443,11 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 abweichung = mean_absolute_error(y[-1:], verkürztePrognose)
                 abweichung = abweichung.round(2)
                 abweichung_rechts[2] = abweichung
+                
+
+                proz_abweichung = (abs(verkürztePrognose[0] - y.iloc[-1][0]) / y.iloc[-1][0]) * 100
+                proz_abweichung =  proz_abweichung.round(2)
+                proz_abweichung_rechts[2] = proz_abweichung
       
                 
                 ######
@@ -1607,7 +1634,8 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     'und Testdaten auf. Etwa 20 Prozent des Datensatzes werden als Testdaten zurückbehalten. Anschließend wird die lineare Regression basierend auf den Trainingsdaten trainiert und ist nun in der Lage, die nächsten Datenpunkte für die folgenden Perioden vorherzusagen. ',
                     html.Br(), html.Br(), 'In diesem Fall wird ein Mean-Absolute-Error in Höhe von ', html.Strong(str(mae_rechts[0])), ' erzielt',
                     html.Br(), 'Dieser Mean-Absolute Error (kurz: MAE) gibt an, inwieweit die vorhergesagten Datenpunkte von den tatsächlichen Werten des Testdatensatzes abweicht. Je näher der MAE an der 0 liegt, desto besser schneidet das Machine-Learning-Modell (hier: die lineare Regression) bei der Vorhersage ab.',
-                    html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine lineare Regression durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[0])), '.'
+                    html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine lineare Regression durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[0])), '.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_rechts[0]))
                 ])
     if selected == 'autoArima' and periods == '1':
         if x is not None:
@@ -1624,7 +1652,8 @@ def update_dropdown2_text(selected, periods, graph, x, y):
             'und Testdaten auf. Etwa 20 Prozent des Datensatzes werden als Testdaten zurückbehalten. Anschließend wird automatisiert ein ARIMA Zeitreihenmodell aufgestellt und verschiedene Durchgänge mit diversen Parametern trainiert. Das Modell mit den besten Werten gewinnt und ist nun in der Lage, die nächsten Datenpunkte für die folgenden Perioden vorherzusagen. ',
             html.Br(), html.Br(), 'In diesem Fall wird ein Mean-Absolute-Error in Höhe von ', html.Strong(str(mae_rechts[1])), ' erzielt',
             html.Br(), 'Dieser Mean-Absolute Error (kurz: MAE) gibt an, inwieweit die vorhergesagten Datenpunkte von den tatsächlichen Werten des Testdatensatzes abweicht.',
-            html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine Auto-ARIMA-Prognose durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[1])), '.'
+            html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine Auto-ARIMA-Prognose durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[1])), '.',
+            html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_rechts[1]))
         ])
     if selected == 'ridgeCV' and periods == '1':
         if x is not None:
@@ -1642,7 +1671,8 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     'und Testdaten auf. Etwa 20 Prozent des Datensatzes werden als Testdaten zurückbehalten. Anschließend werden die besten Parameter automatisiert mithilfe der Cross Validation für die Ridge Regression ermittelt. Das Modell mit den besten Werten gewinnt und ist nun in der Lage, die nächsten Datenpunkte für die folgenden Perioden vorherzusagen. ',
                     html.Br(), html.Br(), 'In diesem Fall wird ein Mean-Absolute-Error in Höhe von ', html.Strong(str(mae_rechts[2])), ' erzielt',
                     html.Br(), 'Dieser Mean-Absolute Error (kurz: MAE) gibt an, inwieweit die vorhergesagten Datenpunkte von den tatsächlichen Werten des Testdatensatzes abweicht. Der MAE kann Werte zwischen 0 und 1 annehmen. Je näher er an der 0 liegt, desto besser schneidet das Machine-Learning-Modell (hier: die lineare Regression) bei der Vorhersage ab. Je näher der MAE an der 1 liegt, desto schlechter die Performance des Modells',
-                    html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine Ridge Regression mit Cross Validation durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[2])), '.'
+                    html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine Ridge Regression mit Cross Validation durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[2])), '.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_rechts[2]))
                 ])
 
     if selected == 'linearRegression' and periods == '2':
@@ -1661,7 +1691,8 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     'und Testdaten auf. Etwa 20 Prozent des Datensatzes werden als Testdaten zurückbehalten. Anschließend wird die lineare Regression basierend auf den Trainingsdaten trainiert und ist nun in der Lage, die nächsten Datenpunkte für die folgenden Perioden vorherzusagen. ',
                     html.Br(), html.Br(), 'In diesem Fall wird ein Mean-Absolute-Error in Höhe von ', html.Strong(str(mae_rechts[0])), ' erzielt',
                     html.Br(), 'Dieser Mean-Absolute Error (kurz: MAE) gibt an, inwieweit die vorhergesagten Datenpunkte von den tatsächlichen Werten des Testdatensatzes abweicht. Der MAE kann Werte zwischen 0 und 1 annehmen. Je näher er an der 0 liegt, desto besser schneidet das Machine-Learning-Modell (hier: die lineare Regression) bei der Vorhersage ab. Je näher der MAE an der 1 liegt, desto schlechter die Performance des Modells',
-                    html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine lineare Regression durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[0])), '.'
+                    html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine lineare Regression durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[0])), '.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_rechts[0]))
                 ])
     if selected == 'autoArima' and periods == '2':
         if x is not None:
@@ -1679,7 +1710,8 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     'und Testdaten auf. Etwa 20 Prozent des Datensatzes werden als Testdaten zurückbehalten. Anschließend wird automatisiert ein ARIMA Zeitreihenmodell aufgestellt und verschiedene Durchgänge mit diversen Parametern trainiert. Das Modell mit den besten Werten gewinnt und ist nun in der Lage, die nächsten Datenpunkte für die folgenden Perioden vorherzusagen. ',
                     html.Br(), html.Br(), 'In diesem Fall wird ein Mean-Absolute-Error in Höhe von ', html.Strong(str(mae_rechts[1])), ' erzielt',
                     html.Br(), 'Dieser Mean-Absolute Error (kurz: MAE) gibt an, inwieweit die vorhergesagten Datenpunkte von den tatsächlichen Werten des Testdatensatzes abweicht. Der MAE kann Werte zwischen 0 und 1 annehmen. Je näher er an der 0 liegt, desto besser schneidet das Machine-Learning-Modell (hier: die lineare Regression) bei der Vorhersage ab. Je näher der MAE an der 1 liegt, desto schlechter die Performance des Modells',
-                    html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine Auto-ARIMA-Vorhersage durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[1])), '.'
+                    html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine Auto-ARIMA-Vorhersage durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[1])), '.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_rechts[1]))
                 ])
     if selected == 'ridgeCV' and periods == '2':
         if x is not None:
@@ -1698,6 +1730,7 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     html.Br(), html.Br(), 'In diesem Fall wird ein Mean-Absolute-Error', html.Sup('1'), 'in Höhe von ', html.Strong(str(mae_rechts[2])), ' erzielt',
                     html.Br(), 'Dieser Mean-Absolute Error (kurz: MAE) gibt an, inwieweit die vorhergesagten Datenpunkte von den tatsächlichen Werten des Testdatensatzes abweicht. Der MAE kann Werte zwischen 0 und 1 annehmen. Je näher er an der 0 liegt, desto besser schneidet das Machine-Learning-Modell (hier: die lineare Regression) bei der Vorhersage ab. Um Vergleichbarkeit XXX ', html.Strong(str(abweichung_rechts[2])),
                     html.Br(), html.Br(), 'Zur besseren Vergleichbarkeit mit den traditionellen Prognosemodellen, wird die letzte Datenreihe im weiteren Durchgang extrahiert, noch einmal eine Ridge Regression mit Cross Validation durchgeführt und der extrahierte Wert prognostiziert. Somit lässt sich erkennen, wie nah der prognostizierte Wert am tatsächlichen Wert liegt. Die Abweichung lautet für diesen Datensatz: ', html.Strong(str(abweichung_rechts[2])), '.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_rechts[2])),
                     html.Br(),
                     html.Br(),
                         html.Div(children=[
@@ -1752,7 +1785,8 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     'Dieser Graph zeigt die Ergebnisse des ',
                     html.Strong('Expontential Smoothing'),
                     ' (Exponentielle Glättung). ',html.Br(), html.Br(), ' Die blaue Linie kennzeichnet die tatsächlichen Werte der eingelesenen Zeitreihe, wohingegen die rote Linie die Vorhersage zeigt. Um die Güte dieses Modells vergleichen zu können, wird abermals eine lineare Regression ohne die letzte Datenreihe durchgeführt und der extrahierte Wert prognostiziert. Anschließend kann mit der Differenz des tatsächlichen Werts zum prognostizierten Wert beurteilt werden, wie gut das Modell bei der Vorhersage abschneidet.',html.Br(), 'In diesem Fall ergibt sich eine Abweichung in Höhe von: ', html.Strong(str(mae_links[1])), '. Je höher diese Abweichung, desto schlechter ist das Modell in der Lage auf Basis des eingelesenen Datensatzes eine Vorhersage zu treffen.',
-                    html.Br(), html.Br(), 'Es ist zu beachten, dass das Exponential Smoothing vergangenen Entwicklungen hinterherhinkt und somit in manchen Fällen bei der Abweichungsanalyse vermeintlich besser abschneidet als andere Modelle.'
+                    html.Br(), html.Br(), 'Es ist zu beachten, dass das Exponential Smoothing vergangenen Entwicklungen hinterherhinkt und somit in manchen Fällen bei der Abweichungsanalyse vermeintlich besser abschneidet als andere Modelle.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_links[1]))
                 ])
     if selected == 'movingAverage'and periods =='1':
         if x is not None:
@@ -1768,7 +1802,8 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     html.Strong('Moving Average Modell der dritten Ordnung'),
                     ' . Das heißt basierend auf den jeweils drei vorherigen Datenpunkten wird der nächste Vorhergesagt.',
                     html.Br(), html.Br(), ' Die blaue Linie kennzeichnet die tatsächlichen Werte der eingelesenen Zeitreihe, wohingegen die rote Linie die Vorhersage zeigt. Um die Güte dieses Modells vergleichen zu können, wird abermals eine lineare Regression ohne die letzte Datenreihe durchgeführt und der extrahierte Wert prognostiziert. Anschließend kann mit der Differenz des tatsächlichen Werts zum prognostizierten Wert beurteilt werden, wie gut das Modell bei der Vorhersage abschneidet.',html.Br(), 'In diesem Fall ergibt sich eine Abweichung in Höhe von: ', html.Strong(str(mae_links[2])), '. Je höher diese Abweichung, desto schlechter ist das Modell in der Lage auf Basis des eingelesenen Datensatzes eine Vorhersage zu treffen.',
-                    html.Br(), html.Br(), 'Es ist zu beachten, dass das Moving Average Verfahren der dritten Ordnung vergangenen Entwicklungen hinterherhinkt und somit in manchen Fällen bei der Abweichungsanalyse vermeintlich besser abschneidet als andere Modelle.'
+                    html.Br(), html.Br(), 'Es ist zu beachten, dass das Moving Average Verfahren der dritten Ordnung vergangenen Entwicklungen hinterherhinkt und somit in manchen Fällen bei der Abweichungsanalyse vermeintlich besser abschneidet als andere Modelle.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_links[2]))
                 ])
 
     if selected == 'linReg' and periods =='2':
@@ -1785,6 +1820,7 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     'Dieser Graph zeigt die Ergebnisse der ',
                     html.Strong('klassischen linearen Regression'),
                     ' ,welche mithilfe der Python-Bibliothek Scipy durchgeführt wird. ',html.Br(), html.Br(), 'Um die Güte dieses Modells vergleichen zu können, wird abermals eine lineare Regression ohne die letzte Datenreihe durchgeführt und der extrahierte Wert prognostiziert. Anschließend kann mit der Differenz des tatsächlichen Werts zum prognostizierten Wert beurteilt werden, wie gut das Modell bei der Vorhersage abschneidet. In diesem Fall ergibt sich eine Abweichung in Höhe von: ', html.Strong(str(mae_links[0])), '.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_links[0]))
                     
                 ])
         
@@ -1802,6 +1838,7 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     'Dieser Graph zeigt die Ergebnisse des ',
                     html.Strong('Expontential Smoothing'),
                     ' (Exponentielle Glättung),welches mithilfe der Python-Bibliothek Scipy durchgeführt wird. ',html.Br(), html.Br(), 'Um die Güte dieses Modells vergleichen zu können, wird abermals eine exponentielle Glättung ohne die letzte Datenreihe durchgeführt und der extrahierte Wert prognostiziert. Anschließend kann mit der Differenz des tatsächlichen Werts zum prognostizierten Wert beurteilt werden, wie gut das Modell bei der Vorhersage abschneidet. In diesem Fall ergibt sich eine Abweichung in Höhe von: ', html.Strong(str(mae_links[1])), '.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_links[1]))
                 ])
     if selected == 'movingAverage' and periods =='2':
         if x is not None:
@@ -1817,6 +1854,7 @@ def update_dropdown2_text(selected, periods, graph, x, y):
                     html.Strong('Moving Average Modell der dritten Ordnung'),
                     ' . Das heißt basierend auf den jeweils drei vorherigen Datenpunkten wird der nächste Vorhergesagt.',
                     html.Br(), html.Br(), 'Um die Güte dieses Modells vergleichen zu können, wird abermals ein Moving-Average Verfahren ohne die letzte Datenreihe durchgeführt und der extrahierte Wert prognostiziert. Anschließend kann mit der Differenz des tatsächlichen Werts zum prognostizierten Wert beurteilt werden, wie gut das Modell bei der Vorhersage abschneidet. In diesem Fall ergibt sich eine Abweichung in Höhe von: ', html.Strong(str(mae_links[0])), '.',
+                    html.Br(), 'Des Weiteren ergibt sich eine prozentuale Abweichung des prognostizierten Werts zum realen Wert in Höhe von: ', html.Strong(str(proz_abweichung_links[2]))
                 ])
   
     else:
