@@ -1408,39 +1408,43 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 prediction2 = ridge.predict([[(last_index + 2)]]).round(2)
 
                 #Hinzufügen der Vorhersagen zum Dataframe 
-                df.iloc[:, 1][df.index[-1]] = prediction1
+                df.iloc[:, 1][df.index[-2]] = prediction1
                 df.iloc[:, 1][df.index[-1]] = prediction2
 
                 #Nun soll der Graph definiert werden:
                 df = df.round(2)
-                x_values = [str(i) for i in df.index]
+                #x_values = [str(i) for i in df.index]
                 fig = px.line(title='Ridge Cross Validation')
                 
                 fig.add_trace(go.Scatter(
-                    x=x_values[:-1],
-                    y=df.iloc[:-1, 1],
+                    x=df.iloc[:-2, 0],
+                    y=df.iloc[:-2, 1],
                     mode="lines",
                     line=dict(color= '#4A4AE8'),
                     name="Daten"
                 ))
 
                 fig.add_trace(go.Scatter(
-                    x=[x_values[-2], x_values[-1]],
-                    y=[df.iloc[-2, 1], df.iloc[-1, 1]],
+                    x=[df.iloc[-3, 0],df.iloc[-2, 0], df.iloc[-1, 0]],
+                    y=[df.iloc[-3, 1],df.iloc[-2, 1], df.iloc[-1, 1]],
                     mode="lines",
                     line=dict(dash="dash", color="red"),
                     name="Vorhersage"
                 ))
 
                 fig.update_layout(
-
+                    xaxis=dict(
+                        title="Zeit",
+                        tickmode="linear",
+                        tick0=df.iloc[0, 0],
+                        dtick=2,
+                        range=[df.iloc[0, 0], df.iloc[-1, 0]],
+                    ),
                     yaxis=dict(
                         title="Wert"
-                    ),
-                    xaxis=dict(
-                        title="Zeit"
                     )
-) 
+                )
+
 
 
                 return dcc.Graph(
