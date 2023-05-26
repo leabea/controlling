@@ -1413,7 +1413,7 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
 
                 #Nun soll der Graph definiert werden:
                 df = df.round(2)
-                #x_values = [str(i) for i in df.index]
+                x_values = [str(i) for i in df.index]
                 fig = px.line(title='Ridge Cross Validation')
                 
                 fig.add_trace(go.Scatter(
