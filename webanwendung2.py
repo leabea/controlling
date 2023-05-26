@@ -368,20 +368,22 @@ def update_output2(selected_graph, periods, list_of_contents, list_of_names):
                 fig = px.line(title='klassische lineare Regression')
                 
                 fig.add_trace(go.Scatter(
-                    x=x_values[:-1],
-                    y=df.iloc[:-1, 1],
+                    #x=df.iloc[:-1, 0],
+                    x=x_values[:-2],
+                    y=df.iloc[:-2, 1],
                     mode="lines",
                     line=dict(color= '#4A4AE8'),
                     name="Daten"
                 ))
 
                 fig.add_trace(go.Scatter(
-                    x=[x_values[-2], x_values[-1]],
-                    y=[df.iloc[-2, 1], df.iloc[-1, 1]],
+                    x=[x_values[-3] , x_values[-2], x_values[-1]],
+                    y=[df.iloc[-3, 1], df.iloc[-2, 1],df.iloc[-1, 1]],                 
                     mode="lines",
                     line=dict(dash="dash", color="red"),
                     name="Vorhersage"
                 ))
+
 
                 fig.update_layout(
 
@@ -926,20 +928,22 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 fig = px.line(title='Lineare Regression (mit Machine Learning)')
                 
                 fig.add_trace(go.Scatter(
-                    x=x_values[:-1],
-                    y=df.iloc[:-1, 1],
+                    #x=df.iloc[:-1, 0],
+                    x=x_values[:-2],
+                    y=df.iloc[:-2, 1],
                     mode="lines",
                     line=dict(color= '#4A4AE8'),
                     name="Daten"
                 ))
 
                 fig.add_trace(go.Scatter(
-                    x=[x_values[-2], x_values[-1]],
-                    y=[df.iloc[-2, 1], df.iloc[-1, 1]],
+                    x=[x_values[-3] , x_values[-2], x_values[-1]],
+                    y=[df.iloc[-3, 1], df.iloc[-2, 1],df.iloc[-1, 1]],                 
                     mode="lines",
                     line=dict(dash="dash", color="red"),
                     name="Vorhersage"
                 ))
+
 
                 fig.update_layout(
 
@@ -949,7 +953,7 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                     xaxis=dict(
                         title="Zeit"
                     )
-)                 
+)               
 
                 return dcc.Graph(
                     id='regression-plot',
@@ -996,15 +1000,18 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 column_names = df2.columns.tolist()
                 column_index = 0
                 column_name = column_names[column_index]
-
+                
+                df2.iloc[:, [column_index]] = pd.to_datetime(df2.iloc[:, [column_index]].astype(str).apply('-'.join, axis=1), format='%d.%m.%Y')
                 #df2.iloc[:, [column_index]] = pd.to_datetime(df2.iloc[:, [column_index]].astype(str).agg('-'.join, axis=1), format='%d.%m.%Y')
-                df2[column_name] = pd.to_datetime(df2[column_name].astype(str).apply(lambda x: '-'.join(x.split('.0')[0].split('.') + ['01', '01'])))
+                #df2[column_name] = pd.to_datetime(df2[column_name].astype(str).apply(lambda x: '-'.join(x.split('.0')[0].split('.') + ['01', '01'])))
                 df2 = df2.set_index(column_name)
                 #Quelle: Hirschle, J. (2021): Machine Learning für Zeitreihen: Einstieg in Regressions-, ARIMA-und Deep Learning-Verfahren mit Python Inkl. E-Book, 1. Auflage, Carl Hanser Verlag GmbH Co. KG, München, S. 118.
                 grenze = 0.8 * round(len(df2))
                 grenze = int(grenze)
                 train = df2[:grenze]
                 test = df2[grenze:]
+                print('TEST')
+                print(len (test))
 
                 #Quelle: Pmdarima (2023): https://alkaline-ml.com/pmdarima/modules/generated/pmdarima.arima.auto_arima.html
                 #Auto-Arima trainieren (mit 4 Saisonen und ADF-Test zur Prüfung der Stationarität)
@@ -1015,13 +1022,16 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 #Vorhersage der Testreihen --> wird zunächst berechnet, 
                 # um den Mean Absolute Error (MAE) berechnen zu können
                 length_prediction = int(len(test))
+                print('length_prediction ', length_prediction )
                 prediction = pd.DataFrame(arima_model.predict(length_prediction))
+                print('prediction', prediction)
                 #Berechnung des Mean Absolute Error zur Beurteilung der Güte 
                 mae = mean_absolute_error(test, prediction)
                 mae = mae.round(2)
                 mae_rechts[1] = mae
                 #Vorhersage der nächsten Periode
                 nextPrediction = arima_model.predict(length_prediction + 1)
+                print('nextpred', nextPrediction)
                 nextPrediction = nextPrediction[-1]
                 nextPrediction = round(nextPrediction, 2)     
      
@@ -1040,6 +1050,8 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 train2 = df3[:grenze]
                 test2 = df3[grenze:]
                 zahl = int(len(test2))
+                print('Lea1', zahl)
+                print('grenze', grenze)
 
                 #Auto-Arima trainieren (mit den gleichen Parametern wie zuvor)
                 arima_model = auto_arima(train2, start_p=0, d=1, start_q=0, test='adf', max_p=5, max_d=5, max_q=5, start_P=0, D=1, start_Q=0,
@@ -1048,6 +1060,7 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 
 
                 length_prediction = int(len(test2))
+                print('Lea', length_prediction)
                 #Vorhersage
                 nextPrediction2 = pd.DataFrame(arima_model.predict(length_prediction + 1))
 
@@ -1147,8 +1160,9 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 column_index = 0
                 column_name = column_names[column_index]
                 #erste Spalte des Dataframe in das gewünschte Datumsformat umwandeln
+                df2.iloc[:, [column_index]] = pd.to_datetime(df2.iloc[:, [column_index]].astype(str).apply('-'.join, axis=1), format='%d.%m.%Y')
                 #df2.iloc[:, [column_index]] = pd.to_datetime(df2.iloc[:, [column_index]].astype(str).agg('-'.join, axis=1), format='%d.%m.%Y')
-                df2[column_name] = pd.to_datetime(df2[column_name].astype(str).apply(lambda x: '-'.join(x.split('.0')[0].split('.') + ['01', '01'])))
+                #df2[column_name] = pd.to_datetime(df2[column_name].astype(str).apply(lambda x: '-'.join(x.split('.0')[0].split('.') + ['01', '01'])))
                 df2 = df2.set_index(column_name)
                 #Quelle: Hirschle, J. (2021): Machine Learning für Zeitreihen: Einstieg in Regressions-, ARIMA-und Deep Learning-Verfahren mit Python Inkl. E-Book, 1. Auflage, Carl Hanser Verlag GmbH Co. KG, München, S. 118.               
                 grenze = 0.8 * round(len(df2))
@@ -1185,22 +1199,21 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 
                 fig.add_trace(go.Scatter(
                     #x=df.iloc[:-1, 0],
-                    x=x_values[:-1],
-                    y=df.iloc[:-1, 1],
+                    x=x_values[:-2],
+                    y=df.iloc[:-2, 1],
                     mode="lines",
                     line=dict(color= '#4A4AE8'),
                     name="Daten"
                 ))
 
                 fig.add_trace(go.Scatter(
-                    #probiere wegzumachen
-                    #x=[df.iloc[-2, 0], df.iloc[-1, 0]],
-                    x=[x_values[-2], x_values[-1]],
-                    y=[df.iloc[-2, 1], df.iloc[-1, 1]],
+                    x=[x_values[-3] , x_values[-2], x_values[-1]],
+                    y=[df.iloc[-3, 1], df.iloc[-2, 1],df.iloc[-1, 1]],                 
                     mode="lines",
                     line=dict(dash="dash", color="red"),
                     name="Vorhersage"
                 ))
+
 
                 fig.update_layout(
 
@@ -1210,7 +1223,7 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                     xaxis=dict(
                         title="Zeit"
                     )
-)    
+)  
 
 
 
@@ -1417,7 +1430,8 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 fig = px.line(title='Ridge Cross Validation')
                 
                 fig.add_trace(go.Scatter(
-                    x=df.iloc[:-2, 0],
+                    #x=df.iloc[:-1, 0],
+                    x=x_values[:-2],
                     y=df.iloc[:-2, 1],
                     mode="lines",
                     line=dict(color= '#4A4AE8'),
@@ -1425,25 +1439,23 @@ def update_output(selected_graph, periods, list_of_contents, list_of_names):
                 ))
 
                 fig.add_trace(go.Scatter(
-                    x=[df.iloc[-3, 0],df.iloc[-2, 0], df.iloc[-1, 0]],
-                    y=[df.iloc[-3, 1],df.iloc[-2, 1], df.iloc[-1, 1]],
+                    x=[x_values[-3] , x_values[-2], x_values[-1]],
+                    y=[df.iloc[-3, 1], df.iloc[-2, 1],df.iloc[-1, 1]],                 
                     mode="lines",
                     line=dict(dash="dash", color="red"),
                     name="Vorhersage"
                 ))
 
+
                 fig.update_layout(
-                    xaxis=dict(
-                        title="Zeit",
-                        tickmode="linear",
-                        tick0=df.iloc[0, 0],
-                        dtick=2,
-                        range=[df.iloc[0, 0], df.iloc[-1, 0]],
-                    ),
+
                     yaxis=dict(
                         title="Wert"
+                    ),
+                    xaxis=dict(
+                        title="Zeit"
                     )
-                )
+) 
 
 
 
